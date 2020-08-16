@@ -1,0 +1,8 @@
+C1=="A1"
+C1&="str"
+c1!="a1"
+name$="string"
+C1=="A1"andC1=="string"
+C1=="A1"orC1&="str"
+ID=="88"and89iu=="DDDD"andC1=="A1"
+ID=="88"or89iu=="DDDD"andC1=="A1"
