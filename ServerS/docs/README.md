@@ -24,10 +24,18 @@
 
 ## 3.项目设计与实现  
 ### 3.1 项目结构设计
-ServerS主要结构如图N所示：
+ServerS主要结构如图N所示：  
+
+![SS_Structure](./images/SS_Structure.png)  
+
+首先，ServerS通过`Http Server`获取到从客户端发送的`命令文本`，并将`命令文本`的内容传递到命令解析器`SSActioner`中进行解析，获取到命令对应的实例化对象(`命令实例`)。将`命令实例`作为输入，通过查询命令管理器`QueryManager`，进行命令内容的查询。命令查询管理器`QueryManager`根据`命令实例`的内容调用数据文件加载器`FileHandler`，获取对应的数据内容，并将数据内容返回给查询命令管理器`QueryManager`，在查询命令管理器`QueryManager`中将数据内容进行计算，并将最终计算结果通过`Http Server`返还给客户端。
 
 
-### 3.1 HTTP访问  
+### 3.1 HTTP Server
+HTTP Server模块的主要结构如下图所示：  
+
+![Http_Server](./images/SS_Structure_http.png)  
+
 使用java内置的套接字接口实现从HTTP服务中获取命令。绑定端口为localhost:8800，主要操作代码如下：
 ```
 //1.建立一个服务器Socket(ServerSocket)绑定指定端口
@@ -37,7 +45,11 @@ Socket socket=serverSocket.accept();
 ....
 ```  
 **完整代码将在附录1中给出，代码对应位置**`ServerS\src\main\java\cn\edu\nuaa\little1\http\HttpServer.java`  
-### 3.2 通过命令操作  
+### 3.2 命令解析器SSActioner  
+命令解析器SSActioner模块的主要结构如下图所示：  
+  
+![CMD_Parser](./images/SS_Structure_CMDParser.png)
+
 本文借助工具Antlr4实现命令编译前端的实现，设计命令的抽象语法，并借助Antlr4工具实现了命令词法分析器和语法分析器的生成，并得到抽象语法树，基于抽象语法树，实现命令操作。  
 #### 3.2.1 编译前端
 Antlr4工具pom.xml配置如下：
@@ -198,7 +210,25 @@ public class EqualQuery extends Query {
 ```  
 **上面只给出部分代码，详细代码见附录4，代码对应位置**`ServerS\src\main\java\cn\edu\nuaa\little1\walker\SSActioner.java`   
 
-### 3.3 操作CSV文件  
+### 3.3 查询命令管理器QueryManager
+ServerS工具的主要输出是符合条件的CSV行，因此，本文在中间计算的过程中使用行号`row_id`作为不同计算过程中的传递参数。查询命令管理器QueryManager根据行号将对应行的内容返回。查询命令管理器QueryManager的主要输入为`命令实例`,`命令实例`主要分为`简单命令(Simple Cmd, SC)`和`命令操作符(AND / OR)`两类。`查询命令管理器 QueryManager`的主要结构如下图所示：
+
+<!-- 计算过程草图图下(没有时间了，详细过程后续会在Github上进行更新)：   -->
+![QueryManager](./images/SS_Structure_QueryManager.png)   
+
+计算算法的步骤如下：
+
+- 首先，通过命令解析模块获取用户输入命令，并将命令保存在命令队列中。  
+
+- 队列不为空，循环出队，如果出队的是简单命令，不是操作符`AND / OR`。就将简单命令执行，并将执行结果入栈。  
+
+- 如果是操作符，就进行一次出栈操作和一次出队操作，并将出队的命令与出栈的命令分别执行，两个执行结果，根据操作符进行AND或者OR操作。并将操作结果入栈。
+
+- 当队列为空时，将栈全部结果出栈，并输出。  
+ 
+**详细代码见附录6，代码对应位置。**`ServerS\src\main\java\cn\edu\nuaa\little1\query\QueryManager.java`
+
+### 3.4 操作CSV文件  
 本文通过java工具`opencsv`将进行csv文件的读取。
 
 工具pom.xml配置。
@@ -216,22 +246,7 @@ public class EqualQuery extends Query {
 **详细代码见附录5，代码对应位置。**`ServerS\src\main\java\cn\edu\nuaa\little1\file\CSVFileHandler.java`  
 
 #### 3.3.2 输出内容计算  
-ServerS工具的主要输出是符合条件的CSV行，因此，本文在中间计算的过程中使用行号`row_id`作为不同计算过程中的传递参数。
-
-计算过程草图图下(没有时间了，详细过程后续会在Github上进行更新)：  
-![cal](./images/cal.PNG)  
-
-计算算法的步骤如下：
-
-- 首先，通过命令解析模块获取用户输入命令，并将命令保存在命令队列中。  
-
-- 队列不为空，循环出队，如果出队的是简单命令，不是操作符`AND / OR`。就将简单命令执行，并将执行结果入栈。  
-
-- 如果是操作符，就进行一次出栈操作和一次出队操作，并将出队的命令与出栈的命令分别执行，两个执行结果，根据操作符进行AND或者OR操作。并将操作结果入栈。
-
-- 当队列为空时，将栈全部结果出栈，并输出。  
-- 
-**详细代码见附录6，代码对应位置。**`ServerS\src\main\java\cn\edu\nuaa\little1\query\QueryManager.java`                                              
+                                              
 
 ## 4.运行测试  
 由于业务能力有限，未能在规定时间内进行完整的测试过程，只是用了小部分测试用例，保证题目要求的基本流程正常进行。测试通过的测试用例如下：
