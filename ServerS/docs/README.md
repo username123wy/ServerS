@@ -3,9 +3,10 @@
 #### E-mail : yiwu@nuaa.edu.cn  
 
 ## 1.介绍  
-通过HTTP服务编写一个API server。支持通过简单的命令实现对csv数据表的查询操作。项目GIT:[https://github.com/username123wy/ServerS](https://github.com/username123wy/ServerS)  
+通过HTTP服务编写一个API server。支持通过简单的命令实现对csv数据表的查询操作。项目GIT:
+[https://github.com/username123wy/ServerS](https://github.com/username123wy/ServerS)  
 ## 2.可行性分析 
-实现一个小型的csv数据库，通过命令行操作，数据文件只针对csv文件，并通过HTTP服务访问。选用java实现
+实现一个小型的csv数据库，通过命令行操作，数据文件只针对csv文件，并通过HTTP服务访问。选用java实现。
 
 - csv存储数据：java有很多支持csv文件操作的工具。
 - 命令行解析：题目要求的命令较为简单，基本的字符串解析处理，编译原理课程基础。同时java有很多词法分析，语法分析生成器，可以自动根据语法生成编译前端，自动生成关于命令的抽象语法树。
